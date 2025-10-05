@@ -7,9 +7,9 @@ ec2 = boto3.resource("ec2", region_name="ap-south-1")  # Change to your region
 #ami_id = "ami-0b982602dbb32c5bd"  # Example Amazon Linux 2 AMI (Mumbai region)
 ami_id = "ami-02d26659fd82cf299"  # Example Ubuntu AMI (Mumbai region)
 instance_type = "t2.medium"
-key_name = "10-09"   # Make sure this exists in your AWS account
-security_group = "sg-076a1cc721e7686ca"  # Replace with your SG ID
-subnet_id = "subnet-055ad3e93da528c3a"   # Replace with your subnet ID
+key_name = "key.pem"   # Make sure this exists in your AWS account
+security_group = "type_value"  # Replace with your SG ID
+subnet_id = "type_value"   # Replace with your subnet ID
 instance_count =1  # Number of instances to create
 
 # Launch instances
