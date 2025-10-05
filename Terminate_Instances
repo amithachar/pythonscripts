@@ -1,0 +1,18 @@
+import boto3
+
+# Replace with your region and instance ID
+REGION = "ap-south-1"  # Example: Mumbai
+INSTANCE_ID = " "  # Replace with your instance ID
+
+def terminate_instance(instance_id, region):
+    ec2 = boto3.client("ec2", region_name=region)
+    try:
+        response = ec2.terminate_instances(InstanceIds=[instance_id])
+        print(f"Termination initiated for {instance_id}")
+        for instance in response['TerminatingInstances']:
+            print(f"Instance {instance['InstanceId']} state: {instance['PreviousState']['Name']} ➝ {instance['CurrentState']['Name']}")
+    except Exception as e:
+        print(f"Error terminating instance: {e}")
+
+if __name__ == "__main__":
+    terminate_instance(INSTANCE_ID, REGION)
