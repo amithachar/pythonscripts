@@ -1,0 +1,26 @@
+import boto3
+from datetime import datetime, timezone
+
+# Initialize EC2 client (make sure AWS CLI is configured or credentials are set)
+ec2 = boto3.client("ec2", region_name="ap-south-1")  # change to your region
+
+def get_instance_status():
+    # Describe all instances
+    response = ec2.describe_instances()
+
+    for reservation in response["Reservations"]:
+        for instance in reservation["Instances"]:
+            instance_id = instance["InstanceId"]
+            state = instance["State"]["Name"]
+            launch_time = instance["LaunchTime"]  # UTC time
+            current_time = datetime.now(timezone.utc)
+            uptime = current_time - launch_time
+
+            print(f"Instance ID: {instance_id}")
+            print(f"State: {state}")
+            print(f"Launch Time: {launch_time}")
+            print(f"Uptime: {uptime.days} days, {uptime.seconds//3600} hours, {(uptime.seconds//60)%60} minutes")
+            print("-" * 50)
+
+if __name__ == "__main__":
+    get_instance_status()
