@@ -1,0 +1,54 @@
+import boto3
+
+# Initialize a boto3 EC2 resource
+ec2 = boto3.resource("ec2", region_name="ap-south-1")  # Change to your region
+
+# Configuration
+#ami_id = "ami-0b982602dbb32c5bd"  # Example Amazon Linux 2 AMI (Mumbai region)
+ami_id = "ami-02d26659fd82cf299"  # Example Ubuntu AMI (Mumbai region)
+instance_type = "t2.medium"
+key_name = "10-09"   # Make sure this exists in your AWS account
+security_group = "sg-076a1cc721e7686ca"  # Replace with your SG ID
+subnet_id = "subnet-055ad3e93da528c3a"   # Replace with your subnet ID
+instance_count =1  # Number of instances to create
+
+# Launch instances
+instances = ec2.create_instances(
+    ImageId=ami_id,
+    MinCount=instance_count,
+    MaxCount=instance_count,
+    InstanceType=instance_type,
+    KeyName=key_name,
+    SecurityGroupIds=[security_group],
+    SubnetId=subnet_id,
+    BlockDeviceMappings=[
+        {
+            "DeviceName": "/dev/xvda",  # Root volume (check AMI docs if different)
+            "Ebs": {
+                "VolumeSize": 25,  # Root volume size in GB
+                "VolumeType": "gp3",  # gp3 is recommended (cheaper, scalable)
+                "DeleteOnTermination": True
+            },
+        },
+     #    {
+     #       "DeviceName": "/dev/sdf",  # Extra volume
+     #       "Ebs": {
+     #           "VolumeSize": 20,  # Extra volume size in GB
+     #           "VolumeType": "gp3",
+     #           "DeleteOnTermination": True
+     #       },
+     #   },
+    ],
+    TagSpecifications=[
+        {
+            "ResourceType": "instance",
+            "Tags": [
+                {"Key": "Name", "Value": "MyPythonInstance"}
+            ],
+        }
+    ],
+)
+
+print("Launched instances:")
+for instance in instances:
+    print(f"ID: {instance.id}, State: {instance.state['Name']}")
