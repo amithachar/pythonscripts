@@ -1,0 +1,46 @@
+import boto3
+
+
+def get_running_ec2_info(region="ap-south-1"):
+    # Create EC2 client
+    ec2 = boto3.client("ec2", region_name=region)
+
+    # Filter only running instances
+    response = ec2.describe_instances(
+        Filters=[{"Name": "instance-state-name", "Values": ["running"]}]
+    )
+
+    for reservation in response["Reservations"]:
+        for instance in reservation["Instances"]:
+            print("=" * 60)
+            print(f"Instance ID      : {instance.get('InstanceId')}")
+            print(f"Instance Type    : {instance.get('InstanceType')}")
+            print(f"State            : {instance['State']['Name']}")
+            print(f"AMI ID           : {instance.get('ImageId')}")
+            print(f"Key Name         : {instance.get('KeyName')}")
+            print(f"Launch Time      : {instance['LaunchTime'].strftime('%Y-%m-%d %H:%M:%S')}")
+            print(f"Availability Zone: {instance['Placement']['AvailabilityZone']}")
+            print(f"Private IP       : {instance.get('PrivateIpAddress')}")
+            print(f"Public IP        : {instance.get('PublicIpAddress')}")
+            print(f"VPC ID           : {instance.get('VpcId')}")
+            print(f"Subnet ID        : {instance.get('SubnetId')}")
+
+            # Security groups
+            sg_names = [sg['GroupName'] for sg in instance.get('SecurityGroups', [])]
+            print(f"Security Groups  : {', '.join(sg_names)}")
+
+            # Tags
+            tags = {tag['Key']: tag['Value'] for tag in instance.get('Tags', [])} if instance.get('Tags') else {}
+            print(f"Tags             : {tags}")
+
+            # Block device mappings (EBS volumes)
+            if "BlockDeviceMappings" in instance:
+                for block in instance["BlockDeviceMappings"]:
+                    ebs = block.get("Ebs", {})
+                    print(f"Volume ID        : {ebs.get('VolumeId')} (Device: {block.get('DeviceName')})")
+
+            print("=" * 60 + "\n")
+
+
+if __name__ == "__main__":
+    get_running_ec2_info(region="ap-south-1")
