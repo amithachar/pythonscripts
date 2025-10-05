@@ -1,0 +1,24 @@
+import boto3
+import datetime
+
+USD_TO_INR = 88.76  # Update this manually to current rate
+
+today = datetime.date.today()
+start = today.replace(day=1)
+end = today + datetime.timedelta(days=1)
+
+client = boto3.client('ce', region_name='us-east-1')
+
+response = client.get_cost_and_usage(
+    TimePeriod={
+        'Start': start.strftime('%Y-%m-%d'),
+        'End': end.strftime('%Y-%m-%d')
+    },
+    Granularity='MONTHLY',
+    Metrics=['UnblendedCost']
+)
+
+amount_usd = float(response['ResultsByTime'][0]['Total']['UnblendedCost']['Amount'])
+amount_inr = amount_usd * USD_TO_INR
+
+print(f"AWS bill for {start.strftime('%B %Y')}: {amount_usd:.2f} USD (~₹{amount_inr:.2f} INR)")
