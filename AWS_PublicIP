@@ -1,0 +1,30 @@
+import boto3
+
+
+def get_instance_public_ips(region_name="ap-south-1"):
+    ec2 = boto3.client("ec2", region_name=region_name)
+
+    # Describe running instances
+    response = ec2.describe_instances(Filters=[{"Name": "instance-state-name", "Values": ["running"]}])
+
+    public_ips = []
+    for reservation in response["Reservations"]:
+        for instance in reservation["Instances"]:
+            instance_id = instance["InstanceId"]
+            public_ip = instance.get("PublicIpAddress")
+            if public_ip:
+                public_ips.append((instance_id, public_ip))
+
+    return public_ips
+
+
+if __name__ == "__main__":
+    region = "ap-south-1"  # Change to your region
+    ips = get_instance_public_ips(region)
+
+    if not ips:
+        print("No running instances with Public IPs found.")
+    else:
+        print("Instance Public IPs:")
+        for instance_id, ip in ips:
+            print(f"{instance_id} -> {ip}")
